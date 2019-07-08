@@ -1,5 +1,4 @@
 import { GraphQLServer } from 'graphql-yoga';
-import { isNull } from 'util';
 
 // Scalar Types - Stores a single value
 // String - String based data
@@ -25,19 +24,19 @@ const users = [{
 }]
 
 const posts = [{
-    id: '1',
+    id: '10',
     title: 'New Car!',
     body: 'I just bought a new car!',
     isPublished: true,
     author: '1'
 }, {
-    id: '2',
+    id: '11',
     title: 'Getting Jiggy',
     body: 'Check out my dance moves!',
     isPublished: true,
     author: '1'
 }, {
-    id: '3',
+    id: '12',
     title: 'Taking a Udemy Class',
     body: '',
     isPublished: false,
@@ -47,19 +46,23 @@ const posts = [{
 const comments = [{
     id: 'ab1',
     text: 'Love this post man!  Good stuff!',
-    author: '1'
+    author: '1',
+    post: '10'
 }, {
     id: 'bc2',
     text: 'Nice moves man!',
-    author: '1'
+    author: '1',
+    post: '11'
 }, {
     id: 'cd3',
     text: "I'm learning a lot in this class",
-    author: '2'
+    author: '2',
+    post: '12'
 }, {
     id:'de4',
     text: 'My stomach is upset. :(',
-    author: '3'
+    author: '3',
+    post: '11'
 }]
 
 // Type Definitions (schema)
@@ -87,12 +90,14 @@ const typeDefs = `
         body: String!
         isPublished: Boolean!
         author: User!
+        comments: [Comment!]!
     }
 
     type Comment {
         id: ID!
         text: String!
         author: User!
+        post: Post!
     }
 `
 
@@ -143,6 +148,11 @@ const resolvers = {
             return users.find((user) => {
                 return user.id === parent.author
             })
+        },
+        comments(parent, args, ctx, info) {
+            return comments.filter((comment) => {
+                return comment.post === parent.id
+            })
         }
     },
     User: {
@@ -161,6 +171,11 @@ const resolvers = {
         author(parent, args, ctx, info) {
             return users.find((user) => {
                 return user.id === parent.author
+            })
+        },
+        post(parent, args, ctx, info) {
+            return posts.find((post) => {
+                return post.id === parent.post
             })
         }
     }
